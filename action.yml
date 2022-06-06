@@ -21,10 +21,9 @@ inputs:
 runs:
     using: "composite"
     steps:
-      - uses: actions/checkout@v2
       - name: Install sfdx
         run: |
-          npm install -g sfdx-cli@${{ inputs.sfdx-version }}
+          npm install -g 'sfdx-cli@${{ inputs.sfdx-version }}'
         shell: bash
       - name: Set up Python
         uses: actions/setup-python@v3
@@ -36,8 +35,9 @@ runs:
         shell: bash
       - name: Authenticate to Dev Hub
         run: |
-          echo ${{ secrets.SFDX_AUTH_URL }} > sfdx_auth
+          echo '${{ inputs.SFDX_AUTH_URL }}' > sfdx_auth
           sfdx force:auth:sfdxurl:store -f sfdx_auth -d
+          rm sfdx_auth
         shell: bash
       - name: Run Flow
         run: |
