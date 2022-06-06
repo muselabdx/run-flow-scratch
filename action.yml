@@ -1,0 +1,55 @@
+name: Execute CumulusCI Flow
+description: 'Execute a named CumulusCI flow'
+inputs:
+  cumulusci-version:
+    description: 'version of CumulusCI to install'
+    required: true
+    default: '3.59.0'
+  sfdx-version:
+    description: 'version of SFDX to install'
+    required: true
+    default: '7.135.0'
+  dev-hub-auth-url:
+    description: 'SFDX auth URL for the Dev Hub'
+    required: true
+  org-name:
+    description: 'Name of the scratch org config to use'
+    required: true
+  flow-name:
+    description: 'Name of the CumulusCI flow to execute'
+    required: true
+runs:
+    using: "composite"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install sfdx
+        run: |
+          npm install -g sfdx-cli@${{ inputs.sfdx-version }}
+        shell: bash
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install CumulusCI
+        run: |
+          pip install 'cumulusci==${{ inputs.cumulusci-version }}'
+        shell: bash
+      - name: Authenticate to Dev Hub
+        run: |
+          echo ${{ secrets.SFDX_AUTH_URL }} > sfdx_auth
+          sfdx force:auth:sfdxurl:store -f sfdx_auth -d
+        shell: bash
+      - name: Run Flow
+        run: |
+          cci flow run ${{ inputs.flow-name }} --org ${{ inputs.org-name }}
+        shell: bash
+      - name: Store Test Results
+        uses: actions/upload-artifact@v1
+        with:
+          name: apex_test_results.xml
+          path: test_results.xml
+      - name: Delete Scratch Org
+        if: ${{ always() }}
+        run: |
+          cci org scratch_delete ${{ inputs.org-name }}
+        shell: bash
