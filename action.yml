@@ -43,11 +43,6 @@ runs:
         run: |
           cci flow run ${{ inputs.flow-name }} --org ${{ inputs.org-name }}
         shell: bash
-      - name: Store Test Results
-        uses: actions/upload-artifact@v1
-        with:
-          name: apex_test_results.xml
-          path: test_results.xml
       - name: Delete Scratch Org
         if: ${{ always() }}
         run: |
