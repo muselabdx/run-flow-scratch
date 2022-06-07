@@ -55,6 +55,8 @@ runs:
         shell: bash
       - name: Set Commit Status
         if: ${{ inputs.commit-status-regex && inputs.commit-status-name }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           STATUS=$(cat cumulusci-flow.log | grep -o '${{ inputs.commit-status-regex }}')
           gh api \
