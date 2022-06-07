@@ -18,9 +18,6 @@ inputs:
   flow-name:
     description: 'Name of the CumulusCI flow to execute'
     required: true
-  github-token:
-    description: "GitHub access token"
-    required: true
 runs:
     using: "composite"
     steps:
@@ -44,7 +41,7 @@ runs:
         shell: bash
       - name: Run Flow
         env:
-          CUMULUSCI_SERVICE_github: '{"username": "${{ github.actor }}", "token": "${{ secrets.GITHUB_TOKEN }}", "email": "cci@github.actions" }'
+          CUMULUSCI_SERVICE_github: '{"username": "${{ github.actor }}", "token": "${{ github.token }}", "email": "cci@github.actions" }'
         run: |
           cci flow run ${{ inputs.flow-name }} --org ${{ inputs.org-name }}
         shell: bash
