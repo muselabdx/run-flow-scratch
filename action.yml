@@ -40,6 +40,8 @@ runs:
           rm sfdx_auth
         shell: bash
       - name: Run Flow
+        env:
+          CUMULUSCI_SERVICE_github: '{"username": "${{ github.actor }}", "token": "${{ secrets.GITHUB_TOKEN }}", "email": "cci@github.actions" }'
         run: |
           cci flow run ${{ inputs.flow-name }} --org ${{ inputs.org-name }}
         shell: bash
