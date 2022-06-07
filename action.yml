@@ -68,7 +68,7 @@ runs:
             -H "Accept: application/vnd.github.v3+json" \
             /repos/${{ github.repository }}/statuses/${{ github.sha }} \
             -f state='success' \
-            -f description="${{ commit-status-description-prefix }}$STATUS" \
+            -f description="${{ inputs.commit-status-description-prefix }}$STATUS" \
             -f context='${{ inputs.commit-status-name }}'
         shell: bash
       - name: Delete Scratch Org
