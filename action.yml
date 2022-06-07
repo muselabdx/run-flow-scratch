@@ -33,7 +33,6 @@ runs:
         run: |
           npm install -g 'sfdx-cli@${{ inputs.sfdx-version }}'
         shell: bash
-      - name: Prepare CumulusCI Requirements File
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
