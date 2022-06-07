@@ -26,6 +26,10 @@ inputs:
     description: 'Regex to apply to flow log to locate commit status value'
     required: false
     default:
+  commit-status-description-prefix:
+    description: 'Value to prefix before regex result in commit status value'
+    required: false
+    default:
 runs:
     using: "composite"
     steps:
@@ -64,7 +68,7 @@ runs:
             -H "Accept: application/vnd.github.v3+json" \
             /repos/${{ github.repository }}/statuses/${{ github.sha }} \
             -f state='success' \
-            -f description="$STATUS" \
+            -f description="${{ commit-status-description-prefix }}$STATUS" \
             -f context='${{ inputs.commit-status-name }}'
         shell: bash
       - name: Delete Scratch Org
