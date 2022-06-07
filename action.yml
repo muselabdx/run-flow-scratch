@@ -18,6 +18,14 @@ inputs:
   flow-name:
     description: 'Name of the CumulusCI flow to execute'
     required: true
+  commit-status-name:
+    description: 'Name of an extra commit status to set'
+    required: false
+    default: 
+  commit-status-regex:
+    description: 'Regex to apply to flow log to locate commit status value'
+    required: false
+    default:
 runs:
     using: "composite"
     steps:
@@ -25,6 +33,7 @@ runs:
         run: |
           npm install -g 'sfdx-cli@${{ inputs.sfdx-version }}'
         shell: bash
+      - name: Prepare CumulusCI Requirements File
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
@@ -43,7 +52,19 @@ runs:
         env:
           CUMULUSCI_SERVICE_github: '{"username": "${{ github.actor }}", "token": "${{ github.token }}", "email": "cci@github.actions" }'
         run: |
-          cci flow run ${{ inputs.flow-name }} --org ${{ inputs.org-name }}
+          cci flow run ${{ inputs.flow-name }} --org ${{ inputs.org-name }} | tee cumulusci-flow.log
+        shell: bash
+      - name: Set Commit Status
+        if: ${{ inputs.commit-status-regex && inputs.commit-status-name }}
+        run: |
+          STATUS=$(cat cumulusci-flow.log | grep -o '${{ inputs.commit-status-regex }}')
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            /repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            -f state='success' \
+            -f description='$STATUS' \
+            -f context='${{ inputs.commit-status-name }}'
         shell: bash
       - name: Delete Scratch Org
         if: ${{ always() }}
