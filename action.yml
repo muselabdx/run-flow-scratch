@@ -11,9 +11,9 @@ inputs:
     default: '7.135.0'
   dev-hub-auth-url:
     description: 'SFDX auth URL for the Dev Hub'
-    required: true
+    required: false
   org-name:
-    description: 'Name of the scratch org config to use'
+    description: 'Name of the scratch org or persistent org config to use'
     required: true
   flow-name:
     description: 'Name of the CumulusCI flow to execute'
@@ -46,6 +46,7 @@ runs:
           pip install 'cumulusci==${{ inputs.cumulusci-version }}'
         shell: bash
       - name: Authenticate to Dev Hub
+        if: ${{ inputs.dev-hub-auth-url }}
         run: |
           echo '${{ inputs.dev-hub-auth-url }}' > sfdx_auth
           sfdx force:auth:sfdxurl:store -f sfdx_auth -d
