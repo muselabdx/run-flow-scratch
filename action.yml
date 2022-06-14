@@ -45,7 +45,7 @@ runs:
           rm sfdx_auth
         shell: bash
       - name: Run Flow
-        uses: cumulusci-actions/run-flow
+        uses: cumulusci-actions/run-flow@main
         with:
           org-name: ${{ inputs.org-name }}
           flow-name: ${{ inputs.flow-name }}
