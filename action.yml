@@ -68,5 +68,7 @@ runs:
       - name: Delete Scratch Org
         if: ${{ always() }}
         run: |
-          cci org scratch_delete ${{ inputs.org-name }}
+          if [[ "true" == "$(cci org info ${{ inputs.org-name }} --json | tail -n +2 | jq -r .scratch)" ]]; then
+            cci org scratch_delete ${{ inputs.org-name }}
+          fi
         shell: bash
