@@ -1,4 +1,4 @@
-name: Execute CumulusCI Flow
+name: Run Scratch Org Flow
 description: 'Execute a named CumulusCI flow'
 inputs:
   cumulusci-version:
@@ -11,7 +11,7 @@ inputs:
     default: '7.154.0'
   dev-hub-auth-url:
     description: 'SFDX auth URL for the Dev Hub'
-    required: false
+    required: true
   org-name:
     description: 'Name of the scratch org or persistent org config to use'
     required: true
@@ -39,18 +39,16 @@ runs:
           cumulusci-version: ${{ inputs.cumulusci-version }}
           sfdx-version: ${{ inputs.sfdx-version }}
       - name: Authenticate to Dev Hub
-        if: ${{ inputs.dev-hub-auth-url }}
         run: |
           echo '${{ inputs.dev-hub-auth-url }}' > sfdx_auth
           sfdx force:auth:sfdxurl:store -f sfdx_auth -d
           rm sfdx_auth
         shell: bash
       - name: Run Flow
-        env:
-          CUMULUSCI_SERVICE_github: '{"username": "${{ github.actor }}", "token": "${{ github.token }}", "email": "cci@github.actions" }'
-        run: |
-          cci flow run ${{ inputs.flow-name }} --org ${{ inputs.org-name }} | tee cumulusci-flow.log
-        shell: bash
+        uses: cumulusci-actions/run-flow
+        with:
+          org-name: ${{ inputs.org-name }}
+          flow-name: ${{ inputs.flow-name }}
       - name: Set Commit Status
         if: ${{ inputs.commit-status-regex && inputs.commit-status-name }}
         env:
@@ -68,7 +66,5 @@ runs:
       - name: Delete Scratch Org
         if: ${{ always() }}
         run: |
-          if [[ "true" == "$(cci org info ${{ inputs.org-name }} --json | tail -n +2 | jq -r .scratch)" ]]; then
-            cci org scratch_delete ${{ inputs.org-name }}
-          fi
+          cci org scratch_delete ${{ inputs.org-name }}
         shell: bash
