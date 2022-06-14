@@ -34,7 +34,7 @@ runs:
     using: "composite"
     steps:
       - name: Set Up CumulusCI
-        uses: cumulusci-actions/setup-cumulus
+        uses: cumulusci-actions/setup-cumulus@main
         with:
           cumulusci-version: ${{ inputs.cumulusci-version }}
           sfdx-version: ${{ inputs.sfdx-version }}
