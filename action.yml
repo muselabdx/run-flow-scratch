@@ -8,7 +8,7 @@ inputs:
   sfdx-version:
     description: 'version of SFDX to install'
     required: true
-    default: '7.152.0'
+    default: '7.154.0'
   dev-hub-auth-url:
     description: 'SFDX auth URL for the Dev Hub'
     required: false
@@ -33,18 +33,11 @@ inputs:
 runs:
     using: "composite"
     steps:
-      - name: Install sfdx
-        run: |
-          npm install -g 'sfdx-cli@${{ inputs.sfdx-version }}'
-        shell: bash
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - name: Set Up CumulusCI
+        uses: cumulusci-actions/setup-cumulus
         with:
-          python-version: "3.10"
-      - name: Install CumulusCI
-        run: |
-          pip install 'cumulusci==${{ inputs.cumulusci-version }}'
-        shell: bash
+          cumulusci-version: ${{ inputs.cumulusci-version }}
+          sfdx-version: ${{ inputs.sfdx-version }}
       - name: Authenticate to Dev Hub
         if: ${{ inputs.dev-hub-auth-url }}
         run: |
