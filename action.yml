@@ -14,10 +14,10 @@ inputs:
     description: 'Name of the scratch org or persistent org config to use'
     required: true
   flow-name:
-    description: 'Name of the CumulusCI flow to execute'
+    description: 'Name of the Cumulus flow to execute'
     required: true
   commit-status-name:
-    description: 'Name of an extra commit status to set'
+    description: 'Name of an optional extra commit status to set from build results'
     required: false
     default: 
   commit-status-regex:
@@ -32,31 +32,31 @@ runs:
     using: "composite"
     steps:
       - name: Set Up CumulusCI
-        uses: cumulusci-actions/setup-cumulus@main
+        uses: cumulusci-actions/setup-cumulus@v1
         with:
-          cumulusci-version: ${{ inputs.cumulusci-version }}
-          sfdx-version: ${{ inputs.sfdx-version }}
-      - name: Authenticate to Dev Hub
-        run: |
-          echo '${{ inputs.dev-hub-auth-url }}' > sfdx_auth
-          sfdx force:auth:sfdxurl:store -f sfdx_auth -d
-          rm sfdx_auth
-        shell: bash
+          cumulusci-version: '${{ inputs.cumulusci-version }}'
+          sfdx-version: '${{ inputs.sfdx-version }}'
+      - name: Authorize Dev Hub
+        uses: cumulusci-actions/authorize-org@v1
+        with:
+          auth-url: '${{ inputs.dev-hub-auth-url }}'
+          org-name: dev-hub
+          dev-hub: true
       - name: Run Flow
-        uses: cumulusci-actions/run-flow@main
+        uses: cumulusci-actions/run-flow@v1
         with:
-          org-name: ${{ inputs.org-name }}
-          flow-name: ${{ inputs.flow-name }}
+          org-name: '${{ inputs.org-name }}'
+          flow-name: '${{ inputs.flow-name }}'
       - name: Set Commit Status
         if: ${{ inputs.commit-status-regex && inputs.commit-status-name }}
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: '${{ github.token }}'
         run: |
           STATUS=$(cat cumulusci-flow.log | grep -o '${{ inputs.commit-status-regex }}')
           gh api \
             --method POST \
             -H "Accept: application/vnd.github.v3+json" \
-            /repos/${{ github.repository }}/statuses/${{ github.sha }} \
+            '/repos/${{ github.repository }}/statuses/${{ github.sha }}' \
             -f state='success' \
             -f description="${{ inputs.commit-status-description-prefix }}$STATUS" \
             -f context='${{ inputs.commit-status-name }}'
@@ -64,5 +64,5 @@ runs:
       - name: Delete Scratch Org
         if: ${{ always() }}
         run: |
-          cci org scratch_delete ${{ inputs.org-name }}
+          cci org scratch_delete '${{ inputs.org-name }}'
         shell: bash
