@@ -33,18 +33,18 @@ runs:
     steps:
       - uses: actions/checkout@v3
       - name: Set Up CumulusCI
-        uses: cumulusci-actions/setup-cumulus@v1
+        uses: cumulus-actions/setup-cumulus@v1
         with:
           cumulusci-version: '${{ inputs.cumulusci-version }}'
           sfdx-version: '${{ inputs.sfdx-version }}'
       - name: Authorize Dev Hub
-        uses: cumulusci-actions/authorize-org@v1
+        uses: cumulus-actions/authorize-org@v1
         with:
           auth-url: '${{ inputs.dev-hub-auth-url }}'
           org-name: dev-hub
           dev-hub: true
       - name: Run Flow
-        uses: cumulusci-actions/run-flow@v1
+        uses: cumulus-actions/run-flow@v1
         with:
           org-name: '${{ inputs.org-name }}'
           flow-name: '${{ inputs.flow-name }}'
