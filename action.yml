@@ -13,6 +13,10 @@ inputs:
   org-name:
     description: 'Name of the scratch org or persistent org config to use'
     required: true
+  keep-org:
+    description: 'Do not delete the scratch org'
+    required: false
+    default: false
   flow-name:
     description: 'Name of the Cumulus flow to execute'
     required: true
@@ -63,7 +67,7 @@ runs:
             -f context='${{ inputs.commit-status-name }}'
         shell: bash
       - name: Delete Scratch Org
-        if: ${{ always() }}
+        if: ${{ always() && inputs.keep-org != true }}
         run: |
           cci org scratch_delete '${{ inputs.org-name }}'
         shell: bash
